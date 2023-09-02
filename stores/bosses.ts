@@ -24,7 +24,7 @@ interface IBossesStore {
 export const useBossesStore = defineStore('bosses', {
     state: (): IBossesStore => ({
         bosses: [],
-        activeServer: servers[0].name
+        activeServer: servers[2].name
     }),
 
     actions: {

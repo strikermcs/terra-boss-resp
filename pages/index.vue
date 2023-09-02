@@ -17,19 +17,22 @@ const bossList = computed(() => {
     return bossesToDisplay(bosses.value, activeServer.value)  
 })
 
-
-onMounted(() => {
-    pusherClient.subscribe('Bosses')
-
-    pusherClient.bind('boss:add', (data : IBossState) => {
-       if(userDetails.value?.username != data.userAdd) {
+const addBoss = (data: IBossState) => {
+    if(userDetails.value?.username != data.userAdd) {
             bosses.value.push(data)
             notify.SetNofication('Info', `${data.userAdd} добавил нового босса ${Bosses[data.bossId].name}!`, 'info')
-       }
-    })
+    }
+}
 
-    pusherClient.bind('boss:update', (data: IBossState) => {
-        if(userDetails.value?.username != data.userAdd) {
+const deleteBoss = (data: IBossState) => {
+    if(userDetails.value?.username != data.userAdd) {
+            bosses.value = bosses.value.filter(b => b.id != data.id)
+            notify.SetNofication('Info', `${data.userAdd} удалил босса ${Bosses[data.bossId].name}!`, 'info')
+    }
+}
+
+const updateBoss = (data: IBossState) => {
+    if(userDetails.value?.username != data.userAdd) {
             bosses.value.forEach(b => {
                     if(b.id === data.id) {
                         b.time = data.time as Date,
@@ -41,17 +44,26 @@ onMounted(() => {
                     }
             })
             notify.SetNofication('Info', `${data.userAdd} переписал ${Bosses[data.bossId].name}!`, 'info')
-        }
-    })
+    }
+} 
 
-    pusherClient.bind('boss:delete', (data: IBossState) => {
-        if(userDetails.value?.username != data.userAdd) {
-            bosses.value = bosses.value.filter(b => b.id != data.id)
-            notify.SetNofication('Info', `${data.userAdd} удалил босса ${Bosses[data.bossId].name}!`, 'info')
-        }
-    })
+
+onMounted(() => {
+    pusherClient.subscribe('Bosses')
+
+    pusherClient.bind('boss:add', addBoss)
+    pusherClient.bind('boss:update', updateBoss)
+    pusherClient.bind('boss:delete', deleteBoss)
 })
 
+onBeforeUnmount(() => {
+    pusherClient.unsubscribe("Bosses")
+
+    pusherClient.unbind('boss:add', addBoss)
+    pusherClient.unbind('boss:update', updateBoss)
+    pusherClient.unbind('boss:delete', deleteBoss)
+
+})
 
 definePageMeta({
   layout: "main",
