@@ -6,17 +6,17 @@ import { IBossState, TBossStatus, TServerName } from '@/types'
 export const getTime = (value: any) => {
     
     if(value instanceof Date) {
-        return dayjs(value).format("hh:mm:ss")
+        return dayjs(value).format("HH:mm:ss")
     }
 
     if(typeof(value) === 'string') {   
         const date = new Date(value)
-        return dayjs(date).format("hh:mm:ss")
+        return dayjs(date).format("HH:mm:ss")
     }
   
     const date = new Date(value.seconds * 1000)
 
-    return dayjs(date).format("hh:mm:ss")
+    return dayjs(date).format("HH:mm:ss")
 }
 
 export const getDate = (value: any) => {
@@ -38,17 +38,17 @@ export const getDate = (value: any) => {
 export const getFullDate = (value: any) => {
       
     if(value instanceof Date) {
-        return dayjs(value).format('DD.MM.YYYY hh:mm:ss')
+        return dayjs(value).format('DD.MM.YYYY HH:mm:ss')
     }
 
     if(typeof(value) === 'string') {   
         const date = new Date(value)
-        return dayjs(date).format('DD.MM.YYYY hh:mm:ss')
+        return dayjs(date).format('DD.MM.YYYY HH:mm:ss')
     }
 
     const date = new Date(value.seconds * 1000)
 
-    return dayjs(date).format('DD.MM.YYYY hh:mm:ss')
+    return dayjs(date).format('DD.MM.YYYY HH:mm:ss')
 }
        
 
@@ -93,6 +93,15 @@ export const addTimeToBossResp = (bossId: number, time: Date, status: TBossStatu
     
    return time
 }
+
+export const addTimeToBossAutoResp = (bossId: number) => {
+    const date = new Date()
+
+    const hour = dayjs(date).add(Bosses[bossId].time.hours, 'hour')
+    const minute = dayjs(hour).add(Bosses[bossId].time.minutes, 'minute') 
+    
+    return minute.toDate()
+}  
 
 export const bossesToDisplay = (bosses: IBossState[], server: TServerName) => {  
     const bossesFiltered = bosses.filter(b => b.server === server)
@@ -155,3 +164,13 @@ export const bossesListToText = (bosses: IBossState[]) => {
 
     return str
 }
+
+export const isAutoRespawn = (boss: IBossState) => {
+    if(boss.state === 'respawn') {
+        if(getDiffTime(boss.time).minutes <= -2) {
+            return true
+        }
+        return false
+    }
+   return false
+}   

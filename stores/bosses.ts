@@ -114,7 +114,8 @@ export const useBossesStore = defineStore('bosses', {
                 state: boss.state,
                 userAdd: boss.userAdd,
                 isDown: boss.isDown,
-                desc: boss.desc
+                desc: boss.desc,
+                autoResp: boss.autoResp
             }
 
             updateDoc(docRef, data).then(() => {
@@ -126,6 +127,7 @@ export const useBossesStore = defineStore('bosses', {
                         b.isDown = data.isDown as boolean,
                         b.userAdd = data.userAdd as string,
                         b.desc = data.desc
+                        b.autoResp = data.autoResp as number 
                     }
                 })
 

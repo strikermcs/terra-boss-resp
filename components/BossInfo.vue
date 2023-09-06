@@ -5,7 +5,7 @@ import { IBossState } from '../types';
 import { useBossesStore } from '../stores/bosses'
 import { useUserStore } from '../stores/user';
 import { storeToRefs } from 'pinia';
-import { getTime, getDiffTime, getDate } from '../helpers'
+import { getTime, getDiffTime, getDate, isAutoRespawn, addTimeToBossAutoResp } from '../helpers'
 import alert5minutes from '~/assets/alerts/alert5minutes.wav'
 import alert1minutes from '~/assets/alerts/alert1minutes.wav'
 import { 
@@ -15,7 +15,8 @@ import {
     EditPen, 
     More, 
     Timer,
-    CircleCloseFilled, 
+    CircleCloseFilled,
+    Cpu, 
     SuccessFilled } from '@element-plus/icons-vue';
 
 interface Props {
@@ -57,14 +58,31 @@ const diffTime = () => {
     }
 }
 
-const autoRespawn = () => {
-    if(props.boss.state === 'respawn') {
-        
+const autoRespawnBoss = async () => {
+    if(isAutoRespawn(props.boss)) {
+        const boss: IBossState = {
+        id: props.boss.id,    
+        bossId: props.boss.bossId,
+        time: addTimeToBossAutoResp(props.boss.bossId),
+        date: props.boss.date as Date,
+        state: "timeToRespawn",
+        server: props.boss.server,
+        autoResp: props.boss.autoResp + 1,
+        isDown: false,
+        userAdd: 'Auto Respawn',
+        desc: props.boss.desc
+      }
+
+      
+      await bossesStore.updateBoss(boss)
+
+      timeInterval = setInterval(diffTime, 1000)
     }
 }
 
 
-let timeInterval = setInterval(diffTime, 1000) 
+let timeInterval = setInterval(diffTime, 1000)
+let autoRespInterval = setInterval(autoRespawnBoss, 1000) 
 
 const deleteBossHandler = async () => {
     loading.value = true
@@ -78,7 +96,7 @@ const openUpdateBossModal = () => {
 
 const closeUpdateBossModal = async () => {
     updateBossModal.value = false
-    timeInterval = setInterval(diffTime, 1000) 
+    timeInterval = setInterval(diffTime, 1000)
 }
 
 const setBossDown = async () => {
@@ -88,6 +106,7 @@ const setBossDown = async () => {
     await bossesStore.updateBoss(boss)
     loading.value = false
 }
+
 
 const setBossStatusLost = async () => {
     loading.value = true
@@ -105,6 +124,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
     clearInterval(timeInterval)
+    clearInterval(autoRespInterval)
 })
 </script>
 
@@ -136,6 +156,10 @@ onBeforeUnmount(() => {
                 <div class="boss-time">
                     <div class="time-item">{{getTime(boss.time)}}</div>
                     <div v-if="boss.state ==='timeToRespawn'" class="time-item">
+                    <div class="auto-resp" v-if="boss.autoResp > 0">
+                        <el-icon :size="30"><Cpu /></el-icon>
+                        <div class="resp-val">{{boss.autoResp}}</div>  
+                    </div>    
                     <span>{{differentTime}}</span>
                     <el-icon 
                         color="blue" 
@@ -207,6 +231,14 @@ onBeforeUnmount(() => {
 
 }
 
+.auto-resp {
+    position: absolute;
+    top: -8px;
+    left: -15px;
+}
+
+
+
 .loading {
     display: flex;
     justify-content: center;
@@ -253,6 +285,13 @@ onBeforeUnmount(() => {
     position: absolute;
     top: -2px;
     right: 0; 
+}
+
+.resp-val {
+    position: absolute;
+    top: 8px;
+    left: 11px;
+    color:crimson;
 }
 
 .color-red {
