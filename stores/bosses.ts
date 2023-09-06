@@ -75,7 +75,11 @@ export const useBossesStore = defineStore('bosses', {
                         this.bosses.forEach(b => {
                             if(b.id === id) {
                                 b.state = data.state as TBossState
-                            }
+                            }  
+                        })
+                        $fetch('/api/resp', {
+                            method: 'POST',
+                            body: boss
                         })
                     }).catch(() => {
                         console.log('update boss error')
@@ -131,7 +135,7 @@ export const useBossesStore = defineStore('bosses', {
                     }
                 })
 
-                notify.SetNofication('Success', 'Босс обновлен', 'success')
+                // notify.SetNofication('Success', 'Босс обновлен', 'success')
                 $fetch('/api/bosses', {
                     method: 'PATCH',
                     body: boss

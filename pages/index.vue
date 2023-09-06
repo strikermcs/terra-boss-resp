@@ -20,16 +20,26 @@ const bossList = computed(() => {
 const addBoss = (data: IBossState) => {
     if(userDetails.value?.username != data.userAdd) {
             bosses.value.push(data)
-            notify.SetNofication('Info', `${data.userAdd} добавил нового босса ${Bosses[data.bossId].name}!`, 'info')
+            // notify.SetNofication('Info', `${data.userAdd} добавил нового босса ${Bosses[data.bossId].name}!`, 'info')
     }
 }
 
 const deleteBoss = (data: IBossState) => {
     if(userDetails.value?.username != data.userAdd) {
             bosses.value = bosses.value.filter(b => b.id != data.id)
-            notify.SetNofication('Info', `${data.userAdd} удалил босса ${Bosses[data.bossId].name}!`, 'info')
+            // notify.SetNofication('Info', `${data.userAdd} удалил босса ${Bosses[data.bossId].name}!`, 'info')
     }
 }
+
+// const bossRespawn = (data: IBossState) => {
+//     if(userDetails.value?.username != data.userAdd) {
+//         bosses.value.forEach(b => {
+//             if(b.id === data.id) {
+//                 b.state = 'respawn'  
+//             }
+//         })
+//     }
+// }
 
 const updateBoss = (data: IBossState) => {
     if(userDetails.value?.username != data.userAdd) {
@@ -43,7 +53,7 @@ const updateBoss = (data: IBossState) => {
                         b.desc = data.desc
                     }
             })
-            notify.SetNofication('Info', `${data.userAdd} переписал ${Bosses[data.bossId].name}!`, 'info')
+            // notify.SetNofication('Info', `${data.userAdd} переписал ${Bosses[data.bossId].name}!`, 'info')
     }
 } 
 
@@ -54,6 +64,7 @@ onMounted(() => {
     pusherClient.bind('boss:add', addBoss)
     pusherClient.bind('boss:update', updateBoss)
     pusherClient.bind('boss:delete', deleteBoss)
+    // pusherClient.bind('boss:respawn', bossRespawn)
 })
 
 onBeforeUnmount(() => {
@@ -62,6 +73,7 @@ onBeforeUnmount(() => {
     pusherClient.unbind('boss:add', addBoss)
     pusherClient.unbind('boss:update', updateBoss)
     pusherClient.unbind('boss:delete', deleteBoss)
+    // pusherClient.unbind('boss:respawn', bossRespawn)
 
 })
 
