@@ -20,7 +20,7 @@ import {
 import { db, auth } from '@/libs/firebase' 
 import UsersService from '../services/user';
 import { useNotificationStore } from './notification'
-import { IUser } from '@/types';
+import { IUser, TUserRole } from '@/types';
 
 interface IUserStoreState {
     user: User | null
@@ -53,7 +53,7 @@ export const useUserStore = defineStore('user', {
                 });
         },
  
-        async register(username: string, email: string, password: string): Promise<void>{
+        async register(username: string, email: string, password: string, role: TUserRole): Promise<void>{
             const notify = useNotificationStore()
             const user = await UsersService.getUserByUsername(username)
             
@@ -72,7 +72,7 @@ export const useUserStore = defineStore('user', {
                             username,
                             email,
                             soundAlert: true,
-                            role: 'User'
+                            role
                         }).then((id) => {
                             notify.SetNofication('Успесшно!', 'Пользователь успешно добавлен', 'success')
                             const user: IUser = {
@@ -81,7 +81,7 @@ export const useUserStore = defineStore('user', {
                                 username,
                                 email,
                                 soundAlert: true, 
-                                role: "User"
+                                role
                             }
                             this.users.push(user)
                         })      

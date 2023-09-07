@@ -4,12 +4,14 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 import { storeToRefs } from 'pinia'
 import { DeleteFilled } from '@element-plus/icons-vue'
+import { TUserRole } from 'types'
 
 interface AddUserForm {
   username: string
   email: string
   password: string
   confirmPassword: string
+  role: TUserRole
 }
 
 const userStore = useUserStore()
@@ -22,8 +24,11 @@ const addUserForm = reactive<AddUserForm>({
   username: '',
   email: '',
   password: '',
-  confirmPassword: ''
+  confirmPassword: '',
+  role: 'User'
 })
+
+const roles = ref<TUserRole[]>(['Admin', 'User'])
 
 const editUserForm = reactive<Partial<AddUserForm>>({
   username: '',
@@ -103,7 +108,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
-      userStore.register(addUserForm.username, addUserForm.email, addUserForm.password)
+      userStore.register(addUserForm.username, addUserForm.email, addUserForm.password, addUserForm.role)
     } else {
       console.log('error submit!', fields)
     }
@@ -153,6 +158,14 @@ onMounted(async () => {
           </el-form-item>
           <el-form-item prop="confirmPassword">
             <el-input v-model="addUserForm.confirmPassword" type="password" placeholder="Confirm password" />
+          </el-form-item>
+          <el-form-item  prop="role">
+            <el-select v-model="addUserForm.role"> 
+              <el-option 
+                  v-for="role in roles"
+                  :key="role"
+                  :label="role" :value="role" />
+            </el-select>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="submitForm(addUserFormRef)">
